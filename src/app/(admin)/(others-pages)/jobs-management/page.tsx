@@ -19,6 +19,7 @@ const initialForm = {
   shiftAndHours: '',
   startDate: '',
   deadline: '',
+  link:'',
 };
 interface User {
   id: number;
@@ -41,6 +42,7 @@ interface Job {
   userId: number;
   jobTitle: string;
   jobType: string;
+  link:string;
   industryCategory: string;
   region: string;
   postcode: string;
@@ -300,6 +302,7 @@ const handleDelete = async (jobId: number) => {
             requiredExperience: job.requiredExperience || '',
             requiredLicences: job.requiredLicences || '',
             shiftAndHours: job.shiftAndHours || '',
+            link: job.link || '', // Assuming you have a link field
             // Add any other fields you have in form
           });
           setShowForm(true);
@@ -482,7 +485,8 @@ const handleDelete = async (jobId: number) => {
     </div>
   </div>
 )}
- <JobApplicantAdsPage/>
+
+ {/* <JobApplicantAdsPage/>*/}
     </div>
   );
 }
