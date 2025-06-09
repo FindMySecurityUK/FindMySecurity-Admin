@@ -22,27 +22,27 @@ export default function SignInForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      const response = await axios.post(
-        "https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/auth/login",
-        {
-          email: formData.email,
-          password: formData.password,
-        }
-      );
+    // try {
+    //   const response = await axios.post(
+    //     "https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/auth/login",
+    //     {
+    //       email: formData.email,
+    //       password: formData.password,
+    //     }
+    //   );
 
-      const token = response?.data?.token;
-      if (token) {
-        localStorage.setItem("token", token);
-        router.push("/"); // ✅ Change to your post-login route
-      } else {
-        alert("Login failed: No token received.");
-      }
-    } catch (error: any) {
-      alert(error?.response?.data?.message || "Login failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    //   const token = response?.data?.token;
+    //   if (token) {
+    //     localStorage.setItem("token", token);
+    //     router.push("/"); // ✅ Change to your post-login route
+    //   } else {
+    //     alert("Login failed: No token received.");
+    //   }
+    // } catch (error: any) {
+    //   alert(error?.response?.data?.message || "Login failed. Please try again.");
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
