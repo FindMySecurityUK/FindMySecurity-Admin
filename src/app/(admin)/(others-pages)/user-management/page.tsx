@@ -152,7 +152,7 @@ const UserManagement: React.FC = () => {
         queryParams.append("page", currentPage.toString());
         queryParams.append("limit", "10"); // Add limit as required by API
 
-        const url = `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/users?${queryParams.toString()}`;
+        const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/users?${queryParams.toString()}`;
         console.log("Fetching users from:", url);
 
         const response = await fetch(url);

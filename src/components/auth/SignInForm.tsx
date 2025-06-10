@@ -24,7 +24,7 @@ export default function SignInForm() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/auth/login",
+        "https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/auth/login",
         {
           email: formData.email,
           password: formData.password,

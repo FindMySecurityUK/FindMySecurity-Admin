@@ -110,7 +110,7 @@ export default function JobsPage() {
       if (editingJobId) {
         // Update existing job
         await axios.patch(
-          `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/course/course-ads/${editingJobId}`,
+          `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads/${editingJobId}`,
           payload
         );
         setSuccess('Course updated successfully!');
@@ -118,7 +118,7 @@ export default function JobsPage() {
       } else {
         // Create new job
         await axios.post(
-          'https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/course/course-ads',
+          'https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads',
           payload
         );
         setSuccess('Course created successfully!');
@@ -146,7 +146,7 @@ export default function JobsPage() {
         params.append("search", searchTerm.trim());
       }
       const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
-      const url = `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/course/course-ads?${params.toString()}`;
+      const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads?${params.toString()}`;
       const res = await fetch(url, {
         method: "GET",
         headers: {
@@ -187,7 +187,7 @@ export default function JobsPage() {
     const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
     try {
       setLoading(true);
-      const res = await fetch(`https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/course/course-ads/${jobId}`, {
+      const res = await fetch(`https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads/${jobId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -747,7 +747,7 @@ export default function JobsPage() {
 //     if (editingJobId) {
 //       // Update existing job
 //       await axios.patch(
-//         `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/course/course-ads/${editingJobId}`,
+//         `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads/${editingJobId}`,
 //         payload
 //       );
 //       setSuccess('Course updated successfully!');
@@ -755,7 +755,7 @@ export default function JobsPage() {
 //     } else {
 //       // Create new job
 //       await axios.post(
-//         'https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/course/course-ads',
+//         'https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads',
 //         payload
         
 //       );
@@ -785,7 +785,7 @@ export default function JobsPage() {
 //         params.append("search", searchTerm.trim());
 //       }
 // const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
-//       const url = `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/course/course-ads?${params.toString()}`;
+//       const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads?${params.toString()}`;
 //       const res = await fetch(url, {
 //   method: "GET",
 //   headers: {
@@ -827,7 +827,7 @@ export default function JobsPage() {
 //   const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
 //   try {
 //     setLoading(true);
-//     const res = await fetch(`https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/course/course-ads/${jobId}`, {
+//     const res = await fetch(`https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads/${jobId}`, {
 //       method: 'DELETE',
      
 //           headers: { Authorization: `Bearer ${token}` },

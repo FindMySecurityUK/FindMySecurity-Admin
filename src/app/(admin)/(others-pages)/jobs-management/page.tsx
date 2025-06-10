@@ -115,7 +115,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     if (editingJobId) {
       // Update existing job
       await axios.patch(
-        `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/jobs/${editingJobId}`,
+        `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/jobs/${editingJobId}`,
         payload
       );
       setSuccess('Job updated successfully!');
@@ -123,7 +123,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     } else {
       // Create new job
       await axios.post(
-        'https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/jobs',
+        'https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/jobs',
         payload
       );
       setSuccess('Job created successfully!');
@@ -152,7 +152,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         params.append("search", searchTerm.trim());
       }
 
-      const url = `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/jobs?${params.toString()}`;
+      const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/jobs?${params.toString()}`;
       const res = await fetch(url);
 
       if (!res.ok) throw new Error("Failed to fetch jobs");
@@ -186,7 +186,7 @@ const handleDelete = async (jobId: number) => {
   if (!window.confirm('Are you sure you want to delete this job?')) return;
   try {
     setLoading(true);
-    const res = await fetch(`https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/jobs/${jobId}`, {
+    const res = await fetch(`https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/jobs/${jobId}`, {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('Failed to delete job');

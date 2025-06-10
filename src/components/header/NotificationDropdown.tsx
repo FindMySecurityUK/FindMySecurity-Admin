@@ -38,7 +38,7 @@ export default function NotificationDropdown() {
 
     try {
       const response = await axios.get<NotificationResponse>(
-        `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/notifications/user/1`,
+        `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/notifications/user/1`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

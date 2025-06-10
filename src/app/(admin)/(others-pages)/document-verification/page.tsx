@@ -70,7 +70,7 @@ const DocumentVerification: React.FC = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/documents?page=${currentPage}`,
+        `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/documents?page=${currentPage}`,
         { headers: { "User-Agent": "insomnia/11.1.0" } }
       );
       if (!response.ok) throw new Error(`HTTP error ${response.status}`);
@@ -121,7 +121,7 @@ const DocumentVerification: React.FC = () => {
       try {
         const apiStatus = newStatus === DocumentStatus.VERIFIED ? "APPROVED" : "REJECTED";
         const response = await fetch(
-          `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/documents/${docId}/status`,
+          `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/documents/${docId}/status`,
           {
             method: "PATCH",
             headers: {
@@ -542,7 +542,7 @@ export default DocumentVerification;
 //       try {
 //         setLoading(true);
 //         const response = await fetch(
-//           `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/documents?page=${currentPage}`
+//           `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/documents?page=${currentPage}`
 //         );
 //         const data: ApiResponse = await response.json();
 //         const normalizedData = {
@@ -582,7 +582,7 @@ export default DocumentVerification;
 //     try {
 //       const apiStatus = newStatus === "verified" ? "APPROVED" : "REJECTED";
 //       const response = await fetch(
-//         `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/documents/${docId}/status`,
+//         `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/documents/${docId}/status`,
 //         {
 //           method: "PATCH",
 //           headers: {
@@ -967,7 +967,7 @@ export default DocumentVerification;
 //       try {
 //         setLoading(true);
 //         const response = await fetch(
-//           `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/documents?page=${currentPage}`
+//           `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/documents?page=${currentPage}`
 //         );
 //         const data: ApiResponse = await response.json();
 //         // Normalize status to lowercase and map "approved" to "verified"
@@ -1001,7 +1001,7 @@ export default DocumentVerification;
 //     try {
 //       const apiStatus = newStatus === "verified" ? "APPROVED" : "REJECTED";
 //       const response = await fetch(
-//         `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/documents/${docId}/status`,
+//         `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/documents/${docId}/status`,
 //         {
 //           method: "PATCH",
 //           headers: {

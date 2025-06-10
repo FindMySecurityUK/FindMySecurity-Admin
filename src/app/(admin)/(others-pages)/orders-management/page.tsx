@@ -65,7 +65,7 @@ export default function OrdersPage() {
         if (searchTerm.trim().length > 0) {
           params.append('search', searchTerm.trim());
         }
-        const url = `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/orders?${params.toString()}`;
+        const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/orders?${params.toString()}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch orders');
         const data: OrdersApiResponse = await res.json();

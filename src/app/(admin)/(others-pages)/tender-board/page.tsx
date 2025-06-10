@@ -146,7 +146,7 @@ const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
     if (editingJobId) {
       // Update existing job
       await axios.patch(
-        `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/tender/${editingJobId}`,
+        `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/tender/${editingJobId}`,
         payload,
           {
     headers: {
@@ -159,7 +159,7 @@ const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
     } else {
       // Create new job
       await axios.post(
-  'https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/tender',
+  'https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/tender',
   payload,
   {
     headers: {
@@ -194,7 +194,7 @@ const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
         params.append("industryType", searchTerm.trim());
       }
 const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
-      const url = `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/tender?${params.toString()}`;
+      const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/tender?${params.toString()}`;
       const res = await fetch(url, {
   method: "GET",
   headers: {
@@ -236,7 +236,7 @@ const handleDelete = async (jobId: number) => {
   const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
   try {
     setLoading(true);
-    const res = await fetch(`https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/tender/${jobId}`, {
+    const res = await fetch(`https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/tender/${jobId}`, {
       method: 'DELETE',
      
           headers: { Authorization: `Bearer ${token}` },
