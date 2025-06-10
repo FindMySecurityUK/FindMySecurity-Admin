@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import CourseApplicantAdsPage from './createJobPopup';
-
+import { API_URL } from '../../../../../utils/path';
 const initialForm = {
   title: '',
   description: '',
@@ -102,6 +102,9 @@ export default function JobsPage() {
     setSuccess(null);
 
     try {
+      const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
+      if (!token) throw new Error("No token found in localStorage");
+
       const payload = {
         createdById: 1,
         ...form,
@@ -110,16 +113,26 @@ export default function JobsPage() {
       if (editingJobId) {
         // Update existing job
         await axios.patch(
-          `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads/${editingJobId}`,
-          payload
+          `${API_URL}/course/course-ads/${editingJobId}`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add token to Authorization header
+            },
+          }
         );
         setSuccess('Course updated successfully!');
         setEditingJobId(null); // reset editing state after update
       } else {
         // Create new job
         await axios.post(
-          'https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads',
-          payload
+          `${API_URL}/course/course-ads`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add token to Authorization header
+            },
+          }
         );
         setSuccess('Course created successfully!');
       }
@@ -133,8 +146,7 @@ export default function JobsPage() {
       fetchJobs(page, limit, searchTerm); // Refresh job list after create/update
       setLoading(false);
     }
-  };
-
+};
   async function fetchJobs(page: number, limit: number, searchTerm: string) {
     setLoading(true);
     setError(null);
@@ -146,7 +158,7 @@ export default function JobsPage() {
         params.append("search", searchTerm.trim());
       }
       const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
-      const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads?${params.toString()}`;
+      const url = `${API_URL}/course/course-ads?${params.toString()}`;
       const res = await fetch(url, {
         method: "GET",
         headers: {
@@ -187,7 +199,7 @@ export default function JobsPage() {
     const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
     try {
       setLoading(true);
-      const res = await fetch(`https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/course/course-ads/${jobId}`, {
+      const res = await fetch(`${API_URL}/course/course-ads/${jobId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

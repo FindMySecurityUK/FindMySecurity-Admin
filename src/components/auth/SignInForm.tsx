@@ -8,6 +8,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { API_URL } from "../../../utils/path";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,13 +25,13 @@ export default function SignInForm() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/auth/login",
+        `${API_URL}/auth/login`,
         {
           email: formData.email,
           password: formData.password,
         }
       );
-
+      console.log(response)
       const token = response?.data?.token;
       if (token) {
         localStorage.setItem("token", token);

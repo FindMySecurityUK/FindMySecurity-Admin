@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { API_URL } from '../../../../../utils/path';
 
 interface User {
   id: number;
@@ -59,25 +60,32 @@ export default function OrdersPage() {
       setLoading(true);
       setError(null);
       try {
+        const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
+        if (!token) throw new Error("No token found in localStorage");
+
         const params = new URLSearchParams();
         params.append('page', page.toString());
         params.append('limit', limit.toString());
         if (searchTerm.trim().length > 0) {
           params.append('search', searchTerm.trim());
         }
-        const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/orders?${params.toString()}`;
-        const res = await fetch(url);
+        const url = `${API_URL}/admin/orders?${params.toString()}`;
+        const res = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add token to Authorization header
+          },
+        });
         if (!res.ok) throw new Error('Failed to fetch orders');
         const data: OrdersApiResponse = await res.json();
         setOrders(data.orders);
         setTotalPages(data.pagination.totalPages);
       } catch (err: unknown) {
-        setError('Unknown error');
+        setError(err instanceof Error ? err.message : 'Unknown error');
         console.error(err);
       } finally {
         setLoading(false);
       }
-    }
+}
     fetchOrders();
   }, [page, limit, searchTerm]);
 

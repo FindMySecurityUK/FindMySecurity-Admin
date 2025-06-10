@@ -9,6 +9,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { API_URL } from "../../../../../utils/path";
 
 // Define nested interfaces for role-specific data
 interface Role {
@@ -147,15 +148,21 @@ const UserManagement: React.FC = () => {
 
         if (!roleId) return; // Skip if no roleId
 
+        const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
+        if (!token) throw new Error("No token found in localStorage");
         const queryParams = new URLSearchParams();
         queryParams.append("roleId", roleId.toString());
         queryParams.append("page", currentPage.toString());
         queryParams.append("limit", "10"); // Add limit as required by API
 
-        const url = `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/users?${queryParams.toString()}`;
+        const url = `${API_URL}/admin/users?${queryParams.toString()}`;
         console.log("Fetching users from:", url);
 
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+          },
+        });
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || `HTTP error! status: ${response.status}`);

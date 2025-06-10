@@ -15,6 +15,7 @@ import {
   X,
   Loader2,
 } from "lucide-react";
+import { API_URL } from "../../../../../utils/path";
 import Image from "next/image";
 
 enum DocumentStatus {
@@ -69,9 +70,17 @@ const DocumentVerification: React.FC = () => {
   const fetchDocuments = useCallback(async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
+      if (!token) throw new Error("No token found in localStorage");
+
       const response = await fetch(
-        `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/documents?page=${currentPage}`,
-        { headers: { "User-Agent": "insomnia/11.1.0" } }
+        `${API_URL}/admin/documents?page=${currentPage}`,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`, // Add token to Authorization header
+            "User-Agent": "insomnia/11.1.0",
+          },
+        }
       );
       if (!response.ok) throw new Error(`HTTP error ${response.status}`);
       const data: ApiResponse = await response.json();
@@ -119,13 +128,17 @@ const DocumentVerification: React.FC = () => {
     async (userId: number, docId: number, newStatus: DocumentStatus.VERIFIED | DocumentStatus.REJECTED) => {
       setLoading(true);
       try {
+        const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
+        if (!token) throw new Error("No token found in localStorage");
+
         const apiStatus = newStatus === DocumentStatus.VERIFIED ? "APPROVED" : "REJECTED";
         const response = await fetch(
-          `https://24a9m2v3ki.execute-api.eu-north-1.amazonaws.com/prod/admin/documents/${docId}/status`,
+          `${API_URL}/admin/documents/${docId}/status`,
           {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`, // Add token to Authorization header
               "User-Agent": "insomnia/11.1.0",
             },
             body: JSON.stringify({ status: apiStatus }),
@@ -231,7 +244,6 @@ const DocumentVerification: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [notification]);
-
   return (
     <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
