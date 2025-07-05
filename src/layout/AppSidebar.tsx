@@ -15,12 +15,16 @@ import {
   JobAd,
   Subscription,
   Payment,
+  FolderIcon,
+  UserLine,
+PageIcon,
   // Ai,
   // Messaging,
   Education,
    Analytics,
   Security,
-  // Feedback,
+  Feedback,
+  AlertIcon,
   // Setting,
 } from "../icons/index";
 
@@ -46,6 +50,12 @@ const navItems: NavItem[] = [
     // path: "/user-management",
   },
   {
+    icon: <Feedback />,
+    name: "User's Reporting Issues",
+    path: "/user-reporting",
+    // path: "/user-management",
+  },
+  {
     icon: <Documents />,
     name: "Document Verification & Management",
     path: "/document-verification",
@@ -65,16 +75,16 @@ const navItems: NavItem[] = [
     name: "Orders Management",
     path: "/orders-management",
   },
-  // {
-  //   icon: <Ai />,
-  //   name: "AI & Matchmaking Management",
-  //   path: "/ai-matchmaking",
-  // },
-  // {
-  //   icon: <Messaging />,
-  //   name: "User Communication & Messaging",
-  //   path: "/user-communication",
-  // },
+  {
+    icon: <PageIcon />,
+    name: "Blogs & Content Management",
+    path: "/blog-management",
+  },
+  {
+    icon: <AlertIcon />,
+    name: "News and Insights Management",
+    path: "/news-management",
+  },
   {
     icon: <Education />,
     name: "Training Courses & Education Management",
@@ -90,11 +100,11 @@ const navItems: NavItem[] = [
   //   name: "Security & Privacy Controls",
   //   path: "/security-privacy",
   // },
-  // {
-  //   icon: <Feedback />,
-  //   name: "Support & Feedback Management",
-  //   path: "/support-feedback",
-  // },
+  {
+    icon: <Feedback />,
+    name: "Ads Management",
+    path: "/ads-management",
+  },
   // {
   //   icon: <Setting />,
   //   name: "Custom Settings & Platform Configuration",
