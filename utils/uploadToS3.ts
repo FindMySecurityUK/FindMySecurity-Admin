@@ -29,6 +29,8 @@ export async function uploadToS3({
     body: file,
     headers: {
       'Content-Type': file.type,
+      Authorization: `Bearer ${token}`,
+
     },
   });
 
