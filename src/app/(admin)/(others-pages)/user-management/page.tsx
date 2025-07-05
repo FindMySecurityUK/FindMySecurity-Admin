@@ -321,7 +321,7 @@ const UserManagement: React.FC = () => {
       if (!token) throw new Error("No token found in localStorage");
   
       const response = await fetch(
-        `https://ub1b171tga.execute-api.eu-north-1.amazonaws.com/dev/admin/users/block/${userIdToBlock}`,
+        `${API_URL}/admin/users/block/${userIdToBlock}`,
         {
           method: "PATCH",
           headers: {
