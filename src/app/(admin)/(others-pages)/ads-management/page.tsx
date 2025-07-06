@@ -17,13 +17,22 @@ interface Ad {
   active: boolean;
 }
 
+type FormDataType = {
+  adTitle: string;
+  mediaType: 'IMAGE' | 'VIDEO';
+  mediaUrl: string;
+  redirectUrl: string;
+  startDate: string;
+  endDate: string;
+  active: boolean;
+};
 
 const AdsAdminPage: React.FC = () => {
   const [ads, setAds] = useState<Ad[]>([]);
   const [search, setSearch] = useState('');
   const [popupOpen, setPopupOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<Ad | null>(null);
-  const [formData, setFormData] = useState<Omit<Ad, 'id'>>({
+  const [formData, setFormData] = useState<FormDataType>({
     adTitle: '',
     mediaType: 'IMAGE',
     mediaUrl: '',
@@ -35,6 +44,8 @@ const AdsAdminPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -48,9 +59,13 @@ const AdsAdminPage: React.FC = () => {
   };
 
   const fetchAds = async () => {
-    const response = await axios.get(`${API_URL}/admin/advertisements?page=${currentPage}&limit=10&search=${search}`);
-    setAds(response.data.data);
-    setTotalPages(response.data.pagination.totalPages);
+    try {
+      const response = await axios.get(`${API_URL}/admin/advertisements?page=${currentPage}&limit=10&search=${search}`);
+      setAds(response.data.data);
+      setTotalPages(response.data.pagination.totalPages);
+    } catch (err) {
+      console.error('Error fetching ads', err);
+    }
   };
 
   useEffect(() => {
@@ -59,9 +74,11 @@ const AdsAdminPage: React.FC = () => {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    const isCheckbox = type === 'checkbox';
-    const newValue = isCheckbox ? (e.target as HTMLInputElement).checked : value;
-    setFormData({ ...formData, [name]: newValue });
+    const newValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setFormData(prev => ({
+      ...prev,
+      [name]: newValue
+    }));
   };
 
   const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -69,46 +86,40 @@ const AdsAdminPage: React.FC = () => {
     if (!file) return;
     try {
       const { fileUrl } = await uploadToS3({ file });
-      setFormData({ ...formData, mediaUrl: fileUrl });
+      setFormData(prev => ({ ...prev, mediaUrl: fileUrl }));
     } catch (error) {
       console.error('Upload failed:', error);
     }
   };
 
-  const toISOString = (datetime: string) => {
-    return new Date(datetime).toISOString();
-  };
+  const toISOString = (datetime: string) => new Date(datetime).toISOString();
 
-const [errorMessage, setErrorMessage] = useState('');
-const [successMessage, setSuccessMessage] = useState('');
+  const handleSave = async () => {
+    setErrorMessage('');
+    setSuccessMessage('');
+    if (!validateForm()) return;
 
-const handleSave = async () => {
-  setErrorMessage('');
-  setSuccessMessage('');
-  if (!validateForm()) return;
+    const payload = {
+      ...formData,
+      startDate: toISOString(formData.startDate),
+      endDate: toISOString(formData.endDate),
+    };
 
-  const payload = {
-    ...formData,
-    startDate: toISOString(formData.startDate),
-    endDate: toISOString(formData.endDate),
-  };
-
-  try {
-    if (editingAd) {
-      await axios.patch(`${API_URL}/admin/advertisements/${editingAd.id}`, payload);
-      setSuccessMessage('Advertisement updated successfully.');
-    } else {
-      await axios.post(`${API_URL}/admin/advertisements`, payload);
-      setSuccessMessage('Advertisement created successfully.');
+    try {
+      if (editingAd) {
+        await axios.patch(`${API_URL}/admin/advertisements/${editingAd.id}`, payload);
+        setSuccessMessage('Advertisement updated successfully.');
+      } else {
+        await axios.post(`${API_URL}/admin/advertisements`, payload);
+        setSuccessMessage('Advertisement created successfully.');
+      }
+      setPopupOpen(false);
+      setEditingAd(null);
+      fetchAds();
+    } catch (error: any) {
+      setErrorMessage(error.response?.data?.message || 'Something went wrong.');
     }
-    setPopupOpen(false);
-    setEditingAd(null);
-    fetchAds();
-  } catch (error: any) {
-    setErrorMessage(error.response?.data?.message || 'Something went wrong.');
-  }
-};
-
+  };
 
   const handleEdit = (ad: Ad) => {
     setEditingAd(ad);
@@ -144,6 +155,7 @@ const handleSave = async () => {
   return (
     <div className="p-4 text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Advertisements</h1>
+
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
         <input
           type="text"
@@ -178,14 +190,12 @@ const handleSave = async () => {
             {ads.map((ad) => (
               <tr key={ad.id} className="text-black">
                 <td className="border px-4 py-2">{ad.adTitle}</td>
-    <td className="border px-4 py-2">
-                  <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
-                    {ad.mediaType === 'IMAGE' ? (
-                      <img src={ad.mediaUrl} alt="ad" className="w-full h-auto rounded" />
-                    ) : (
-                      <video src={ad.mediaUrl} controls className="w-full h-auto rounded" />
-                    )}
-                  </div>
+                <td className="border px-4 py-2">
+                  {ad.mediaType === 'IMAGE' ? (
+                    <img src={ad.mediaUrl} alt="ad" className="w-32 h-auto rounded" />
+                  ) : (
+                    <video src={ad.mediaUrl} controls className="w-32 h-auto rounded" />
+                  )}
                 </td>
                 <td className="border px-4 py-2">{ad.redirectUrl}</td>
                 <td className="border px-4 py-2">
@@ -205,19 +215,16 @@ const handleSave = async () => {
         </table>
       </div>
 
+      {/* Popup Modal */}
       {popupOpen && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50">
-
           <div className="bg-white text-black mt-20 p-6 rounded shadow-lg w-full h-auto scroll-auto max-w-xl">
             <h2 className="text-lg font-semibold mb-4">
               {editingAd ? 'Edit Advertisement' : 'Create Advertisement'}
             </h2>
-                {errorMessage && (
-                  <div className="text-red-600 text-sm mt-2">{errorMessage}</div>
-                )}
-                {successMessage && (
-                  <div className="text-green-600 text-sm mt-2">{successMessage}</div>
-                )}
+
+            {errorMessage && <div className="text-red-600 text-sm mt-2">{errorMessage}</div>}
+            {successMessage && <div className="text-green-600 text-sm mt-2">{successMessage}</div>}
 
             <label className="block mb-1 font-semibold">Ad Title</label>
             <input
@@ -300,3 +307,5 @@ const handleSave = async () => {
 };
 
 export default AdsAdminPage;
+
+

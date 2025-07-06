@@ -6,7 +6,31 @@ import axios from 'axios';
 import { API_URL } from '../../../../../utils/path';
 
 
-const initialForm = {
+type FormType = {
+  title: string;
+  summary: string;
+  issuingAuthority: string;
+  industryType: string;
+  location: string;
+  postCode: string;
+  contractValue: string;
+  procurementReference: string;
+  publishedDate: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  approachToMarketDate: string;
+  suitableForSMEs: boolean;
+  suitableForVCSEs: boolean;
+  issuerName: string;
+  issuerAddress: string;
+  issuerPhone: string;
+  issuerEmail: string;
+  issuerWebsite: string;
+  howToApply: string;
+  [key: string]: string | boolean; // ✅ moved into the type
+};
+
+const initialForm: FormType = {
   title: '',
   summary: '',
   issuingAuthority: '',
@@ -182,41 +206,86 @@ const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
     setLoading(false);
   }
 };
+async function fetchJobs(page: number, limit: number, searchTerm: string) {
+  setLoading(true);
+  setError(null);
+  try {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("pageSize", limit.toString());
 
-   async function fetchJobs(page: number, limit: number, searchTerm: string) {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams();
-      params.append("page", page.toString());
-      params.append("pageSize", limit.toString());
-      if (searchTerm.trim()) {
-        params.append("industryType", searchTerm.trim());
-      }
-const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
-      const url = `${API_URL}/tender?${params.toString()}`;
-      const res = await fetch(url, {
-  method: "GET",
-  headers: {
-    Authorization: `Bearer ${token}`,
-   
-  },
- // Optional: only if cookies or CORS credentials are needed
-});
+    const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
+    const url = `${API_URL}/tender?${params.toString()}`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      if (!res.ok) throw new Error("Failed to fetch jobs");
+    if (!res.ok) throw new Error("Failed to fetch jobs");
 
-      const data: TenderApiResponse= await res.json();
+    const data: TenderApiResponse = await res.json();
 
-      setTenders(data?.data);
-      setTotalPages(data?.totalPages||1);
-    } catch (err: unknown) {
-      setError( "Unknown error");
-      console.error(err);
-    } finally {
-      setLoading(false);
+    let filtered = data?.data;
+
+    if (searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
+      filtered = filtered.filter(t =>
+        t.title.toLowerCase().includes(term) ||
+        t.user?.firstName?.toLowerCase().includes(term) ||
+        t.user?.lastName?.toLowerCase().includes(term) ||
+        t.user?.email?.toLowerCase().includes(term)
+      );
     }
+
+    // Sort descending by createdAt
+    filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    setTenders(filtered);
+    setTotalPages(data?.totalPages || 1);
+  } catch (err: unknown) {
+    setError("Unknown error");
+    console.error(err);
+  } finally {
+    setLoading(false);
   }
+}
+
+//    async function fetchJobs(page: number, limit: number, searchTerm: string) {
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const params = new URLSearchParams();
+//       params.append("page", page.toString());
+//       params.append("pageSize", limit.toString());
+//       if (searchTerm.trim()) {
+//         params.append("industryType", searchTerm.trim());
+//       }
+// const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
+//       const url = `${API_URL}/tender?${params.toString()}`;
+//       const res = await fetch(url, {
+//   method: "GET",
+//   headers: {
+//     Authorization: `Bearer ${token}`,
+   
+//   },
+//  // Optional: only if cookies or CORS credentials are needed
+// });
+
+//       if (!res.ok) throw new Error("Failed to fetch jobs");
+
+//       const data: TenderApiResponse= await res.json();
+
+//       setTenders(data?.data);
+//       setTotalPages(data?.totalPages||1);
+//     } catch (err: unknown) {
+//       setError( "Unknown error");
+//       console.error(err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }
 
   // useEffect calls the above function
   useEffect(() => {
@@ -464,63 +533,84 @@ const handleDelete = async (jobId: number) => {
           </button>
         </nav>
       )}
-    {showForm && (
-<div className="fixed inset-0 z-50 flex justify-center items-center bg-black/40 backdrop-blur-sm">
-  <div className="animate-fade-in-up bg-white p-6 rounded-lg w-full max-w-lg shadow-xl relative overflow-y-auto max-h-[80vh]">
-    <button
-      onClick={() => {
-        setShowForm(false);
-        setError(null);
-        setSuccess(null);
-      }}
-      className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-      aria-label="Close form"
-    >
-      ✕
-    </button>
-
-    <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-      {editingJobId ? 'Edit Tender' : 'Create New Tender'}
-    </h2>
-
-    {error && <div className="text-red-700 bg-red-100 p-3 rounded mb-3">{error}</div>}
-    {success && <div className="text-green-700 bg-green-100 p-3 rounded mb-3">{success}</div>}
-
-    <form onSubmit={handleSubmit} className="space-y-4">
-
-      <Input label="Tender Title" name="title" value={form.title} onChange={handleChange} placeholder="Enter tender title" />
-       <Input label="Issuing Authority" name="issuingAuthority" value={form.issuingAuthority} onChange={handleChange} placeholder="Enter tender issueing authority" />
-      <TextArea label="Summary" name="summary" value={form.summary} onChange={handleChange} placeholder="Brief summary of tender..." />
-      <Input label="Industry Type" name="industryType" value={form.industryType} onChange={handleChange} placeholder="e.g., Security, IT" />
-      <Input label="Location" name="location" value={form.location} onChange={handleChange} placeholder="e.g., London" />
-      <Input label="Post Code" name="postCode" value={form.postCode} onChange={handleChange} placeholder="SW1A 1AA" />
-      <Input label="Contract Value" name="contractValue" value={form.contractValue} onChange={handleChange} placeholder="£75,000" />
-      <Input label="Procurement Reference" name="procurementReference" value={form.procurementReference} onChange={handleChange} placeholder="e.g., SEC-2025-045" />
-      <Checkbox label="Suitable for SMEs" name="suitableForSMEs" checked={form.suitableForSMEs} onChange={handleCheckboxChange} />
-      <Checkbox label="Suitable for VCSEs" name="suitableForVCSEs" checked={form.suitableForVCSEs} onChange={handleCheckboxChange} />
-      <Input type="datetime-local" label="Contract Start Date" name="contractStartDate" value={form.contractStartDate} onChange={handleChange} />
-      <Input type="datetime-local" label="Contract End Date" name="contractEndDate" value={form.contractEndDate} onChange={handleChange} />
-      <Input type="datetime-local" label="Approach to Market Date" name="approachToMarketDate" value={form.approachToMarketDate} onChange={handleChange} />
-      <Input type="datetime-local" label="Publish Date" name="publishedDate" value={form.publishedDate} onChange={handleChange} />
-      <Input label="Issuer Name" name="issuerName" value={form.issuerName} onChange={handleChange} />
-      <Input label="Issuer Address" name="issuerAddress" value={form.issuerAddress} onChange={handleChange} />
-      <Input label="Issuer Phone" name="issuerPhone" value={form.issuerPhone} onChange={handleChange} />
-      <Input label="Issuer Email" name="issuerEmail" value={form.issuerEmail} onChange={handleChange} />
-      <Input label="Issuer Website" name="issuerWebsite" value={form.issuerWebsite} onChange={handleChange} />
-      <TextArea label="How to Apply" name="howToApply" value={form.howToApply} onChange={handleChange} placeholder="Instructions to apply..." />
-
+{showForm && (
+  <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/40 backdrop-blur-sm">
+    <div className="animate-fade-in-up bg-white p-6 rounded-lg w-full max-w-lg shadow-xl relative overflow-y-auto max-h-[80vh]">
       <button
-        type="submit"
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+        onClick={() => {
+          setShowForm(false);
+          setError(null);
+          setSuccess(null);
+        }}
+        className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+        aria-label="Close form"
       >
-        {editingJobId ? 'Update Tender' : 'Create Tender'}
+        ✕
       </button>
-    </form>
+
+      <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+        {editingJobId ? 'Edit Tender' : 'Create New Tender'}
+      </h2>
+
+      {error && <div className="text-red-700 bg-red-100 p-3 rounded mb-3">{error}</div>}
+      {success && <div className="text-green-700 bg-green-100 p-3 rounded mb-3">{success}</div>}
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+
+          const requiredFields = [
+            'title', 'issuingAuthority', 'summary', 'industryType', 'location',
+            'postCode', 'contractValue', 'procurementReference', 'contractStartDate',
+            'contractEndDate', 'approachToMarketDate', 'publishedDate', 'issuerName',
+            'issuerAddress', 'issuerPhone', 'issuerEmail', 'issuerWebsite', 'howToApply'
+          ];
+
+          const missing = requiredFields.filter((field) => !form[field]);
+          if (missing.length > 0) {
+            setError('Please fill out all required fields.');
+            return;
+          }
+
+          setError(null); // Clear previous errors
+          handleSubmit(e);
+        }}
+        className="space-y-4"
+      >
+        <Input required label="Tender Title" name="title" value={form.title} onChange={handleChange} placeholder="Enter tender title" />
+        <Input required label="Issuing Authority" name="issuingAuthority" value={form.issuingAuthority} onChange={handleChange} placeholder="Enter tender issuing authority" />
+        <TextArea required label="Summary" name="summary" value={form.summary} onChange={handleChange} placeholder="Brief summary of tender..." />
+        <Input required label="Industry Type" name="industryType" value={form.industryType} onChange={handleChange} placeholder="e.g., Security, IT" />
+        <Input required label="Location" name="location" value={form.location} onChange={handleChange} placeholder="e.g., London" />
+        <Input required label="Post Code" name="postCode" value={form.postCode} onChange={handleChange} placeholder="SW1A 1AA" />
+        <Input required label="Contract Value" name="contractValue" value={form.contractValue} onChange={handleChange} placeholder="£75,000" />
+        <Input required label="Procurement Reference" name="procurementReference" value={form.procurementReference} onChange={handleChange} placeholder="e.g., SEC-2025-045" />
+        
+        <Checkbox label="Suitable for SMEs" name="suitableForSMEs" checked={form.suitableForSMEs} onChange={handleCheckboxChange} />
+        <Checkbox label="Suitable for VCSEs" name="suitableForVCSEs" checked={form.suitableForVCSEs} onChange={handleCheckboxChange} />
+
+        <Input required type="datetime-local" label="Contract Start Date" name="contractStartDate" value={form.contractStartDate} onChange={handleChange} />
+        <Input required type="datetime-local" label="Contract End Date" name="contractEndDate" value={form.contractEndDate} onChange={handleChange} />
+        <Input required type="datetime-local" label="Approach to Market Date" name="approachToMarketDate" value={form.approachToMarketDate} onChange={handleChange} />
+        <Input required type="datetime-local" label="Publish Date" name="publishedDate" value={form.publishedDate} onChange={handleChange} />
+        <Input required label="Issuer Name" name="issuerName" value={form.issuerName} onChange={handleChange} />
+        <Input required label="Issuer Address" name="issuerAddress" value={form.issuerAddress} onChange={handleChange} />
+        <Input required label="Issuer Phone" name="issuerPhone" value={form.issuerPhone} onChange={handleChange} />
+        <Input required label="Issuer Email" name="issuerEmail" value={form.issuerEmail} onChange={handleChange} />
+        <Input required label="Issuer Website" name="issuerWebsite" value={form.issuerWebsite} onChange={handleChange} />
+        <TextArea required label="How to Apply" name="howToApply" value={form.howToApply} onChange={handleChange} placeholder="Instructions to apply..." />
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+        >
+          {editingJobId ? 'Update Tender' : 'Create Tender'}
+        </button>
+      </form>
+    </div>
   </div>
-</div>
-
-
 )}
+
 
 
     </div>
@@ -532,6 +622,7 @@ type InputProps = {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
+  required: boolean;
   placeholder?: string;
 };
 
@@ -542,6 +633,7 @@ const Input = ({ label, name, value, onChange, type = "text", placeholder = "" }
       type={type}
       name={name}
       value={value}
+      required
       onChange={onChange}
       placeholder={placeholder}
       className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -555,6 +647,8 @@ type TextAreaProps = {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
+  required: boolean;
+
 };
 
 const TextArea = ({ label, name, value, onChange, placeholder }: TextAreaProps) => (
@@ -564,6 +658,7 @@ const TextArea = ({ label, name, value, onChange, placeholder }: TextAreaProps) 
       name={name}
       value={value}
       onChange={onChange}
+      required
       placeholder={placeholder}
       rows={3}
       className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"

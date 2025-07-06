@@ -4,6 +4,7 @@ import React, { useEffect, useState, ChangeEvent } from 'react';
 import axios from 'axios';
 import { Check, Edit2, Trash2, X, PlusCircle } from 'lucide-react';
 import { API_URL } from '../../../../../utils/path';
+
 interface NewsVideo {
   id: number;
   videoTitle: string;
@@ -11,13 +12,18 @@ interface NewsVideo {
   active: boolean;
 }
 
+type FormDataType = {
+  videoTitle: string;
+  youtubeUrl: string;
+  active: boolean;
+};
 
 const NewsAdminPage: React.FC = () => {
   const [videos, setVideos] = useState<NewsVideo[]>([]);
   const [search, setSearch] = useState<string>('');
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
   const [editingVideo, setEditingVideo] = useState<NewsVideo | null>(null);
-  const [formData, setFormData] = useState<Omit<NewsVideo, 'id'>>({
+  const [formData, setFormData] = useState<FormDataType>({
     videoTitle: '',
     youtubeUrl: '',
     active: false,
@@ -25,6 +31,8 @@ const NewsAdminPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -35,11 +43,15 @@ const NewsAdminPage: React.FC = () => {
   };
 
   const fetchVideos = async () => {
-    const response = await axios.get(
-      `${API_URL}/admin/news-videos?page=${currentPage}&limit=10&search=${search}`
-    );
-    setVideos(response.data.data);
-    setTotalPages(response.data.pagination.totalPages);
+    try {
+      const response = await axios.get(
+        `${API_URL}/admin/news-videos?page=${currentPage}&limit=10&search=${search}`
+      );
+      setVideos(response.data.data);
+      setTotalPages(response.data.pagination.totalPages);
+    } catch (error) {
+      console.error('Error fetching videos', error);
+    }
   };
 
   useEffect(() => {
@@ -48,24 +60,29 @@ const NewsAdminPage: React.FC = () => {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    const isCheckbox = type === 'checkbox';
-    const newValue = isCheckbox ? (e.target as HTMLInputElement).checked : value;
-    setFormData({
-      ...formData,
-      [name]: newValue,
-    });
+    const newValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    setFormData(prev => ({ ...prev, [name]: newValue }));
   };
 
   const handleSave = async () => {
+    setErrorMessage('');
+    setSuccessMessage('');
     if (!validateForm()) return;
-    if (editingVideo) {
-      await axios.patch(`${API_URL}/admin/news-videos/${editingVideo.id}`, formData);
-    } else {
-      await axios.post(`${API_URL}/admin/news-videos`, formData);
+
+    try {
+      if (editingVideo) {
+        await axios.patch(`${API_URL}/admin/news-videos/${editingVideo.id}`, formData);
+        setSuccessMessage('News video updated successfully.');
+      } else {
+        await axios.post(`${API_URL}/admin/news-videos`, formData);
+        setSuccessMessage('News video created successfully.');
+      }
+      setPopupOpen(false);
+      setEditingVideo(null);
+      fetchVideos();
+    } catch (error: any) {
+      setErrorMessage(error.response?.data?.message || 'Something went wrong.');
     }
-    setPopupOpen(false);
-    setEditingVideo(null);
-    fetchVideos();
   };
 
   const handleEdit = (video: NewsVideo) => {
@@ -100,6 +117,7 @@ const NewsAdminPage: React.FC = () => {
   return (
     <div className="p-4 text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">News and Insights List</h1>
+
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
         <input
           type="text"
@@ -123,28 +141,28 @@ const NewsAdminPage: React.FC = () => {
         <table className="min-w-full border border-gray-700">
           <thead>
             <tr className="bg-gray-900">
-              <th className="border border-gray-700 px-4 py-2">Title</th>
-              <th className="border border-gray-700 px-4 py-2">YouTube Preview</th>
-              <th className="border border-gray-700 px-4 py-2">Active</th>
-              <th className="border border-gray-700 px-4 py-2">Actions</th>
+              <th className="border px-4 py-2">Title</th>
+              <th className="border px-4 py-2">YouTube Preview</th>
+              <th className="border px-4 py-2">Active</th>
+              <th className="border px-4 py-2">Actions</th>
             </tr>
           </thead>
           <tbody>
             {videos.map((video) => (
               <tr key={video.id} className="text-black">
-                <td className="border border-gray-700 px-4 py-2">{video.videoTitle}</td>
-                <td className="border border-gray-700 px-4 py-2">
+                <td className="border px-4 py-2">{video.videoTitle}</td>
+                <td className="border px-4 py-2">
                   <iframe
                     src={video.youtubeUrl}
                     title={video.videoTitle}
-                    className="w-100 h-50"
+                    className="w-full max-w-xs h-48 rounded"
                     allowFullScreen
                   ></iframe>
                 </td>
-                <td className="border border-gray-700 px-4 py-2">
+                <td className="border px-4 py-2">
                   {video.active ? <Check className="text-green-500" /> : <X className="text-red-500" />}
                 </td>
-                <td className="border border-black px-4 py-2 space-x-2">
+                <td className="border px-4 py-2 space-x-2">
                   <button onClick={() => handleEdit(video)} className="text-blue-400">
                     <Edit2 size={16} />
                   </button>
@@ -190,6 +208,9 @@ const NewsAdminPage: React.FC = () => {
             <h2 className="text-lg font-semibold mb-4">
               {editingVideo ? 'Edit News Video' : 'Create News Video'}
             </h2>
+
+            {errorMessage && <p className="text-red-500 text-sm mb-2">{errorMessage}</p>}
+            {successMessage && <p className="text-green-600 text-sm mb-2">{successMessage}</p>}
 
             <div className="mb-3">
               <input

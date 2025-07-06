@@ -415,216 +415,243 @@ export default function JobsPage() {
           </button>
         </nav>
       )}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/40 backdrop-blur-sm">
-          <div className="animate-fade-in-up bg-white p-6 rounded-lg w-full max-w-lg shadow-xl relative overflow-y-auto max-h-[80vh]">
-            <button
-              onClick={() => {
-                setShowForm(false);
-                setError(null);
-                setSuccess(null);
-              }}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-              aria-label="Close form"
-            >
-              ✕
-            </button>
+   {showForm && (
+  <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/40 backdrop-blur-sm">
+    <div className="animate-fade-in-up bg-white p-6 rounded-lg w-full max-w-lg shadow-xl relative overflow-y-auto max-h-[80vh]">
+      <button
+        onClick={() => {
+          setShowForm(false);
+          setError(null);
+          setSuccess(null);
+        }}
+        className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+        aria-label="Close form"
+      >
+        ✕
+      </button>
 
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-              {editingJobId ? 'Edit Course' : 'Create New Course'}
-            </h2>
+      <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+        {editingJobId ? 'Edit Course' : 'Create New Course'}
+      </h2>
 
-            {error && <div className="text-red-700 bg-red-100 p-3 rounded mb-3">{error}</div>}
-            {success && <div className="text-green-700 bg-green-100 p-3 rounded mb-3">{success}</div>}
+      {error && <div className="text-red-700 bg-red-100 p-3 rounded mb-3">{error}</div>}
+      {success && <div className="text-green-700 bg-green-100 p-3 rounded mb-3">{success}</div>}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Course Title:</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="Enter a brief, descriptive title for the tender/contract"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
 
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Course Description:</label>
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  rows={3}
-                  placeholder="Provide a detailed description of the work or services required..."
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+          const isEmpty = Object.values(form).some(val => val === '');
+          if (isEmpty) {
+            setError("All fields are required.");
+            return;
+          }
 
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Other Course Info:</label>
-                <input
-                  type="text"
-                  name="otherCourse"
-                  value={form.otherCourse}
-                  onChange={handleChange}
-                  placeholder="Enter any related course or project references"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Course Type:</label>
-                <input
-                  type="text"
-                  name="courseType"
-                  value={form.courseType}
-                  onChange={handleChange}
-                  placeholder="Service, Works, Goods, Consultancy, etc."
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Course Level:</label>
-                <input
-                  type="text"
-                  name="courseLevel"
-                  value={form.courseLevel}
-                  onChange={handleChange}
-                  placeholder="Beginner, Intermediate, Advanced (or similar levels)"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Course Duration:</label>
-                <select
-                  name="duration"
-                  value={form.duration}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="">Select Duration</option>
-                  <option value="1 day">1 day</option>
-                  <option value="2 days">2 days</option>
-                  <option value="1 week">1 week</option>
-                  <option value="1 month">1 month</option>
-                  <option value="3 months">3 months</option>
-                  <option value="6 months">6 months</option>
-                  <option value="1 year">1 year</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Deadline for Submission:</label>
-                <input
-                  type="datetime-local"
-                  name="startDate"
-                  value={form.startDate}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Course Start Date:</label>
-                <input
-                  type="datetime-local"
-                  name="endDate"
-                  value={form.endDate}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Location of Work:</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={form.location}
-                  onChange={handleChange}
-                  placeholder="Enter the location where services are required"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Submission Method:</label>
-                <input
-                  type="text"
-                  name="deliveryMethod"
-                  value={form.deliveryMethod}
-                  onChange={handleChange}
-                  placeholder="e.g., via email, portal, physical submission"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Estimated Budget or Value:</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={form.price}
-                  min="0"
-                  step="0.01"
-                  onChange={handleChange}
-                  placeholder="Enter estimated budget"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Accreditation/Certifications Required:</label>
-                <input
-                  type="text"
-                  name="accreditation"
-                  value={form.accreditation}
-                  onChange={handleChange}
-                  placeholder="Specify any required qualifications"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium mb-1 text-sm text-gray-700">Submission/Booking Link:</label>
-                <input
-                  type="text"
-                  name="bookingLink"
-                  value={form.bookingLink}
-                  onChange={handleChange}
-                  placeholder="Paste the online submission or application link"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setError(null);
-                    setSuccess(null);
-                  }}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
-                  disabled={loading}
-                >
-                  {loading ? (editingJobId ? 'Updating...' : 'Creating...') : (editingJobId ? 'Update Course' : 'Create Course')}
-                </button>
-              </div>
-            </form>
-          </div>
+          handleSubmit(e);
+        }}
+        className="space-y-4"
+      >
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Course Title:</label>
+          <input
+            required
+            type="text"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder="Enter course title"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
         </div>
-      )}
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Course Description:</label>
+          <textarea
+            required
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            rows={3}
+            placeholder="Detailed description"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Other Course Info:</label>
+          <input
+            required
+            type="text"
+            name="otherCourse"
+            value={form.otherCourse}
+            onChange={handleChange}
+            placeholder="Related course references"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Course Type:</label>
+          <input
+            required
+            type="text"
+            name="courseType"
+            value={form.courseType}
+            onChange={handleChange}
+            placeholder="Service, Works, Goods, Consultancy"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Course Level:</label>
+          <input
+            required
+            type="text"
+            name="courseLevel"
+            value={form.courseLevel}
+            onChange={handleChange}
+            placeholder="Beginner, Intermediate, Advanced"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Course Duration:</label>
+          <select
+            required
+            name="duration"
+            value={form.duration}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          >
+            <option value="">Select Duration</option>
+            <option value="1 day">1 day</option>
+            <option value="2 days">2 days</option>
+            <option value="1 week">1 week</option>
+            <option value="1 month">1 month</option>
+            <option value="3 months">3 months</option>
+            <option value="6 months">6 months</option>
+            <option value="1 year">1 year</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Deadline for Submission:</label>
+          <input
+            required
+            type="datetime-local"
+            name="startDate"
+            value={form.startDate}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Course Start Date:</label>
+          <input
+            required
+            type="datetime-local"
+            name="endDate"
+            value={form.endDate}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Location:</label>
+          <input
+            required
+            type="text"
+            name="location"
+            value={form.location}
+            onChange={handleChange}
+            placeholder="Enter course location"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Submission Method:</label>
+          <input
+            required
+            type="text"
+            name="deliveryMethod"
+            value={form.deliveryMethod}
+            onChange={handleChange}
+            placeholder="Email, portal, physical"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Estimated Budget:</label>
+          <input
+            required
+            type="number"
+            name="price"
+            min="0"
+            step="0.01"
+            value={form.price}
+            onChange={handleChange}
+            placeholder="Enter budget"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Accreditation:</label>
+          <input
+            required
+            type="text"
+            name="accreditation"
+            value={form.accreditation}
+            onChange={handleChange}
+            placeholder="Enter required certifications"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm text-gray-700">Booking Link:</label>
+          <input
+            required
+            type="text"
+            name="bookingLink"
+            value={form.bookingLink}
+            onChange={handleChange}
+            placeholder="Submission or registration link"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4">
+          <button
+            type="button"
+            onClick={() => {
+              setShowForm(false);
+              setError(null);
+              setSuccess(null);
+            }}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
+            disabled={loading}
+          >
+            {loading ? (editingJobId ? 'Updating...' : 'Creating...') : (editingJobId ? 'Update Course' : 'Create Course')}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
       <CourseApplicantAdsPage />
     </div>
   );
